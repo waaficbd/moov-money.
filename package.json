@@ -1,0 +1,14 @@
+{
+  "name": "moov-money-mauritania-loans",
+  "version": "1.0.0",
+  "description": "نظام القروض والتسهيلات الائتمانية السريعة Moov Money موريتانيا (Moov Mauritel)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "telegraf": "^4.12.2",
+    "dotenv": "^16.0.3"
+  }
+}
