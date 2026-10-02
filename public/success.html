@@ -3,135 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Moov Mauritel - نجاح العملية</title>
+    <title>Moov Money الموريتانية - صفحة النجاح العامة</title>
+    
+    <!-- ✅ Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         :root {
             --moov-blue: #002B66;
             --moov-orange: #FF6600;
-            --moov-gradient: linear-gradient(180deg, #003380 0%, #002B66 100%);
+            --moov-orange-dark: #e65c00;
+            --moov-gradient: linear-gradient(180deg, #FF771A 0%, #FF6600 100%);
             --bg-color: #ffffff;
-            --text-dark: #121820;
+            --text-dark: #002B66;
             --text-muted: #666666;
+            --warning-bg: #fff8f0;
+            --warning-border: #FF6600;
+            --warning-title: #cc5200;
         }
 
         * {
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
-        body { 
-            background-color: var(--bg-color); 
-            margin: 0; 
-            padding: 0;
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh; 
-        }
-
-        .header-box { 
-            width: 100%; 
-            background: var(--moov-gradient); 
-            padding: 30px 20px 25px; 
-            color: #ffffff; 
-            text-align: center; 
-        }
-
-        .header-title {
-            font-size: 28px;
-            font-weight: 900;
+        body {
+            background-color: var(--moov-blue);
             margin: 0;
+            padding: 20px 15px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+            text-align: right;
         }
 
-        .header-title .region {
-            font-size: 13px;
-            margin-right: 8px;
-            font-weight: 700;
-            background: var(--moov-orange);
-            color: #ffffff;
-            padding: 2px 8px;
-            border-radius: 6px;
-        }
-
-        .main-content { 
-            width: 90%; 
-            max-width: 400px; 
-            margin: 40px auto; 
-            text-align: center; 
-            flex-grow: 1; 
+        .screen-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--bg-color);
+            border-radius: 28px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .success-icon {
+        /* Checkmark Circle Icon */
+        .check-circle {
             width: 80px;
             height: 80px;
-            background-color: #22c55e;
+            background: var(--moov-gradient);
             color: #ffffff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 45px;
+            font-size: 38px;
+            font-weight: 900;
             margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 6px 16px rgba(255, 102, 0, 0.4);
         }
 
-        h2 { 
-            color: var(--moov-blue); 
-            font-size: 24px; 
-            margin: 0 0 10px; 
-            font-weight: 800; 
+        /* Title Header */
+        .congrats-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
-        p {
+        .sub-text {
             color: var(--text-muted);
             font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            padding: 0 10px;
         }
 
-        .footer-box { 
-            width: 100%; 
-            background: var(--moov-gradient); 
-            padding: 30px 20px; 
-            color: #ffffff; 
-            text-align: center; 
-            border-top-left-radius: 50% 30px; 
-            border-top-right-radius: 50% 30px; 
-            margin-top: auto;
-        }
-
-        .terms-text { 
-            font-size: 11px; 
-            margin-top: 10px; 
+        /* Approved Amount Moov Card */
+        .amount-box {
+            width: 100%;
+            background: var(--moov-gradient);
+            border-radius: 16px;
+            padding: 22px 15px;
+            text-align: center;
             color: #ffffff;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .amount-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
             opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .amount-value {
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+
+        /* Notice Card */
+        .info-card {
+            width: 100%;
+            background-color: var(--warning-bg);
+            border: 1.5px solid var(--warning-border);
+            border-radius: 16px;
+            padding: 20px 18px;
+            margin-bottom: 25px;
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--warning-title);
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-body {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #4a4a4a;
+        }
+
+        /* Detail List */
+        .details-list {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .details-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 16px;
+        }
+
+        .icon-bg {
+            width: 44px;
+            height: 44px;
+            background-color: #f0f4f8;
+            border: 1px solid #d0dbe5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .detail-val {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
+            direction: ltr;
+            display: inline-block;
+        }
+
+        /* Quick Actions */
+        .action-title {
+            width: 100%;
+            font-weight: 800;
+            margin: 15px 0 12px;
+            color: var(--text-dark);
+            font-size: 15px;
+            text-align: right;
+        }
+
+        .btn-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-white {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-white:hover {
+            background-color: #f8fafc;
+        }
+
+        .next-steps {
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #edf2f7;
+            text-align: right;
+        }
+
+        .home-btn {
+            background-color: var(--moov-orange);
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
+            transition: background-color 0.2s;
+        }
+
+        .home-btn:hover {
+            background-color: var(--moov-orange-dark);
         }
     </style>
 </head>
-
 <body>
 
-<div class="header-box">
-    <div class="header-title">
-        <span>Moov Mauritel</span><span class="region">موريتانيا</span>
+    <div class="screen-container">
+        
+        <!-- Header Checkmark -->
+        <div class="check-circle">✓</div>
+        
+        <div class="congrats-title">
+            <span>🎉</span> تهانينا!
+        </div>
+
+        <div class="sub-text">
+            تم <b>القبول</b> على طلب القرض الخاص بك من Moov Money! سيتم صرف الأموال قريباً.
+        </div>
+
+        <!-- Approved Amount Moov Card -->
+        <div class="amount-box">
+            <div class="amount-label">المبلغ المعتمد</div>
+            <div class="amount-value" id="display-amount">20,000 أوقية</div>
+        </div>
+
+        <!-- Compliance Notice -->
+        <div class="info-card">
+            <div class="info-header">⚠️ إشعار المطابقة</div>
+            <div class="info-body">
+                يجب أن يكون حساب Moov Money الخاص بك نشطاً ويحتفظ بضمان أمان لا يقل عن <b>10% من قيمة القرض المطلوب</b>. هذا المبلغ قابل للاسترداد بالكامل بعد السداد الناجح للقرض ويساعد في الحصول على نسب فائدة أفضل.
+            </div>
+        </div>
+
+        <!-- Details Section -->
+        <div class="details-list">
+            <div class="details-heading">
+                <span>💳</span> تفاصيل القرض
+            </div>
+
+            <div class="detail-item">
+                <div class="icon-bg">🇲🇷</div>
+                <div>
+                    <div class="detail-label">رقم الهاتف</div>
+                    <div class="detail-val" id="display-phone">+222 ...</div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="icon-bg">💵</div>
+                <div>
+                    <div class="detail-label">القسط الشهري</div>
+                    <div class="detail-val" id="display-monthly">1,800 أوقية</div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="icon-bg">📅</div>
+                <div>
+                    <div class="detail-label">مدة القرض</div>
+                    <div class="detail-val" id="display-term">12 شهر</div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="icon-bg">📈</div>
+                <div>
+                    <div class="detail-label">نسبة الفائدة</div>
+                    <div class="detail-val">8% سنوياً</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="action-title">إجراءات سريعة</div>
+        <div class="btn-list">
+            <div class="btn-white">💰 إيداع</div>
+            <div class="btn-white">💸 سحب</div>
+            <div class="btn-white">📄 التفاصيل</div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="next-steps">
+            <div style="font-weight: 800; color: var(--text-dark); margin-bottom: 6px; font-size: 14px;">📱 الخطوات التالية:</div>
+            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                ستتلقى رسالة نصية قصيرة (SMS) لتأكيد المعاملة من Moov Money تتضمن تفاصيل الصرف خلال 24 ساعة.
+            </div>
+        </div>
+
+        <button class="home-btn" onclick="window.location.href='/index.html'">🏠 العودة للرئيسية</button>
+
     </div>
-</div>
 
-<div class="main-content">
-    <div class="success-icon">✓</div>
-    <h2>تم الاكتدال بنجاح!</h2>
-    <p>تم التثبت من كافة بياناتك وتوثيق حسابك بنجاح. شكراً لاستخدامك خدمات Moov Mauritel.</p>
-</div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.ready();
+                window.Telegram.WebApp.expand();
+            }
 
-<div class="footer-box">
-    <p class="terms-text">جميع الحقوق محفوظة © Moov Mauritel 2026</p>
-</div>
+            // Retrieve stored data from earlier pages or fallback to URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            const savedPhone = urlParams.get('phone') || localStorage.getItem('phone') || localStorage.getItem('userPhone') || "45123456";
+            const loanAmount = urlParams.get('amount') || localStorage.getItem('loan_amount') || localStorage.getItem('amount') || "20000";
+            const loanTerm = urlParams.get('term') || localStorage.getItem('loan_term') || localStorage.getItem('duration') || "12";
+            const monthlyPay = urlParams.get('monthly') || localStorage.getItem('monthly_repayment') || localStorage.getItem('monthly') || "1800";
 
+            // Format values with Mauritanian Ouguiya currency (MRU / أوقية)
+            const numAmount = Number(loanAmount) || 20000;
+            const numMonthly = Number(monthlyPay) || 1800;
+
+            const formattedAmount = numAmount.toLocaleString('ar-MR') + " أوقية";
+            const formattedMonthly = numMonthly.toLocaleString('ar-MR') + " أوقية";
+
+            // Clean & format Mauritania phone (+222)
+            let rawPhone = savedPhone.replace(/\D/g, '');
+            if (rawPhone.startsWith('222')) {
+                rawPhone = rawPhone.slice(3);
+            }
+            const formattedPhone = rawPhone ? `+222 ${rawPhone}` : "+222 ...";
+
+            // Bind values to the UI
+            document.getElementById('display-amount').innerText = formattedAmount;
+            document.getElementById('display-phone').innerText = formattedPhone;
+            document.getElementById('display-term').innerText = loanTerm + " شهر";
+            document.getElementById('display-monthly').innerText = formattedMonthly;
+        });
+    </script>
 </body>
 </html>
